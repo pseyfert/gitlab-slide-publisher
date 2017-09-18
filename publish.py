@@ -7,7 +7,9 @@ TrivialName = "Vertex2017"
 
 import git
 import os
-r = git.Repo(subprocess.check_output(["git","rev-parse","--show-toplevel"],cwd="/home/pseyfert/cern/slides/2017-09-15-Vertex")[:-1])
+toplevel = subprocess.check_output(["git","rev-parse","--show-toplevel"],os.path.dirname(__file__))
+sub = os.path.relpath(os.path.dirname(__file__),toplevel)
+r = git.Repo(toplevel)
 
 if not TrivialName in [remote.name for remote in r.remotes()]:
 
@@ -24,14 +26,14 @@ if not TrivialName in [remote.name for remote in r.remotes()]:
         response["message"]["name"]
     else:
         import re
-        check_output(["git","remote","add",TrivialName,re.sub("7999","8443",re.sub('ssh://git','https://:',out["ssh_url_to_repo"]))])
+        check_output(["git","remote","add",TrivialName+"remote",re.sub("7999","8443",re.sub('ssh://git','https://:',out["ssh_url_to_repo"]))])
 
 
 # todo unprotect master
 check_output(["git","branch","-D","TrivialName"])
-git subtree split --prefix=2017-09-15-Vertex -b Vertex2017
-git filter-branch -f --index-filter 'rm -rf proceedings' Vertex2017
-git push VERTEX2017 Vertex2017:Vertex2017 -f
+check_output(["git","subtree","split","--prefix="+sub,"-b",TrivialName])
+check_output(["git","filter-branch","-f","--index-filter","rm -rf proceedings",TrivialName])
+check_output(["git","push",TrivialName+"remote",TrivialName+":"+TrivialName,"-f"]
 
 # publication script for pseyfert/gitlab-slide-publisher.
 # Copyright (C) 2017  Paul Seyfert <pseyfert@cern.ch>
