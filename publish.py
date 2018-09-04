@@ -70,7 +70,7 @@ def create_repo():
     repo_conf = json.loads(out.stdout.decode())
     try:
         repo_conf["name"]
-    except:
+    except NameError:
         # likely repo already exists (try-again? name collision?)
         print("Could not create remote repository.")
         print("Server response is:")
@@ -115,7 +115,7 @@ def create_repo():
         check_output(["git", "rm", "logo.png"])
 
     with open("./header.tex", "a") as header:
-        header.write('\\newcommand{{\gitlablink}}{{\myhref{{{realurl}}}{{{escapedurl}}}}}\n'.format(realurl=repo_conf['web_url'], escapedurl=repo_conf['web_url'].replace("_", r'\_')))
+        header.write('\\newcommand{{\\gitlablink}}{{\\myhref{{{realurl}}}{{{escapedurl}}}}}\n'.format(realurl=repo_conf['web_url'], escapedurl=repo_conf['web_url'].replace("_", r'\_')))
 
     return repo_conf
 
@@ -148,7 +148,14 @@ def push():
         pushout = check_output(["git", "push", "--set-upstream", "gitlab", "{}:master".format(current_branch_name())])
     except:
         # pushout unknown ...
-        print("push did ", pushout)
+        try:
+            print("Push did: ", pushout)
+        except:
+            print("Push failed.")
+            print("The remote 'origin' is set up, only push failed.")
+            print("Possibly an authentication error.")
+            print("The attempted push command was:")
+            print("git push --set-upstream gitlab {}:master".format(current_branch_name()))
 
 
 def qrgen():
